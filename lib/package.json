@@ -25,6 +25,7 @@
     "test": "vitest run --coverage"
   },
   "devDependencies": {
+    "@m2d/core": "^0.0.5",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@testing-library/react": "^16.3.0",

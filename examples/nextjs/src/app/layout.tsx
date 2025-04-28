@@ -20,8 +20,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
           <Header linkComponent={Link} />
           {children}
         </Layout>
-        <GlobalLoader />
-        <Particles fullScreenOverlay />
       </body>
     </html>
   );
