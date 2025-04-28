@@ -1,6 +1,6 @@
 {
+  "packageName": "typingfx",
   "owner": "react18-tools",
-  "repo": "turborepo-template",
-  "packageName": "react18-loaders",
-  "title": "React 18 Loaders"
+  "repo": "typingfx",
+  "title": "TypingFX"
 }
