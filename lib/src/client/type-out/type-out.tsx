@@ -26,8 +26,8 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
     // handle null, undefined, etc.
     if (!node) return node;
     if (typeof node === "string")
-      return node.split(" ").map((word, i) => (
-        <span className={styles.word} key={i}>
+      return node.split(" ").map(word => (
+        <span className={styles.word} key={crypto.randomUUID()}>
           {word}&nbsp;
         </span>
       ));
@@ -46,8 +46,9 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
       );
     }
 
-    // @ts-expect-error -- custom css prop
-    if (typeof node === "number") return <span style={{ "--d": `${node}ms` }}></span>;
+    if (typeof node === "number")
+      // @ts-expect-error -- custom css prop
+      return <span key={crypto.randomUUID()} style={{ "--d": `${node}ms` }}></span>;
     return node;
   };
   return handleNode(children);
@@ -89,15 +90,19 @@ export const TypeOut = (props_: TypeOutProps) => {
     };
     Array.from(containerRef.current.children).forEach(enqueue);
 
+    console.log("els ---- ", elements);
+
     for (let i = 0; i < elements.length - 1; i++) {
       const el = elements[i] as HTMLElement;
-      el.addEventListener("animationend", e => {
-        const el = e.target as HTMLElement;
+      const nextEl = elements[i + 1] as HTMLElement;
+      elements[i].addEventListener("animationend", e => {
+        e.stopPropagation();
         el.style.width = el.style.getPropertyValue("--w");
         el.style.height = "auto";
         el.classList.remove(styles.anim);
         el.classList.remove(styles.hk);
-        elements[i + 1].classList.add(styles.anim);
+        nextEl.classList.add(styles.anim);
+        console.log({ el, nextEl });
       });
     }
 
