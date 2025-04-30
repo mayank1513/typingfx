@@ -1,0 +1,57 @@
+.typeout {
+  position: relative;
+  * {
+    transition: all 0s !important;
+  }
+}
+
+.word {
+  --w: 0px;
+  --d: 0s;
+  display: inline-block;
+  overflow: hidden;
+  width: 0;
+}
+
+.hk,
+.processing {
+  --d: 0s;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  * {
+    width: auto !important;
+  }
+}
+
+.anim {
+  animation: type steps(20) var(--d);
+  position: relative;
+  &::after {
+    content: " ";
+    position: absolute;
+    right: 1px;
+    width: 1px;
+    height: 100%;
+    background: currentColor;
+    animation: blink 1s infinite;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes type {
+  from {
+    width: 0;
+    height: auto;
+  }
+  to {
+    width: var(--w);
+    height: auto;
+  }
+}

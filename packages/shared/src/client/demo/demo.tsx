@@ -8,14 +8,12 @@ export function Demo() {
   return (
     <div className={styles.demo}>
       <TypeOut>
+        <p>Hare Krishna Hare Krishna</p>
+        <p style={{ color: "red" }}>Krishna Krishna Hare Hare</p>
+        {2500}
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nisl quis ultricies
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nisl quis ultricies
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nisl quis ultricies
+          Hare Rama Hare Rama <br />
+          Rama Rama Hare Hare
         </p>
       </TypeOut>
     </div>
