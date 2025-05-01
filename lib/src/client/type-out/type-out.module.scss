@@ -1,10 +1,15 @@
-.typeout * {
-  transition: all 0s !important;
+.typeout {
+  --speed: 30;
+  --delSpeed: 60;
+  * {
+    transition: all 0s !important;
+  }
 }
 
 .word {
   --w: 0px;
-  --d: 0s;
+  /** number of chars */
+  --n: 0;
   display: inline-block;
   overflow: hidden;
   width: 0;
@@ -12,7 +17,7 @@
 
 .hk,
 .processing {
-  --d: 0s;
+  --n: 0;
   height: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
@@ -23,10 +28,27 @@
 }
 
 .type {
-  animation: type steps(20) var(--d);
+  animation: type steps(8) calc(var(--n) * 1s / var(--speed));
 }
 
-.cursor .anim::after {
+.del {
+  animation: del steps(8) calc(var(--n) * 1s / var(--delSpeed));
+}
+
+.del.d0,
+.type.t0 {
+  animation-duration: 0s;
+}
+
+.wait.type {
+  animation-duration: var(--d);
+}
+.wait.del {
+  animation-duration: var(--r);
+}
+
+.cursor .type::after,
+.cursor .del::after {
   content: " ";
   position: absolute;
   right: 1px;

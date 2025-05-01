@@ -7,12 +7,12 @@ export interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
 
   /**
    * Typing speed in characters per second
-   * @default 60
+   * @default 30
    */
   speed: number;
   /**
    * Deleting speed in characters per second
-   * @default 20
+   * @default 60
    */
 
   delSpeed: number;
@@ -41,8 +41,8 @@ export interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
 
 const defaultTypeOutProps: DefaultTypeOutProps = {
   children: "",
-  speed: 60,
-  delSpeed: 20,
+  speed: 30,
+  delSpeed: 60,
   noCursor: false,
   steps: [""],
   repeat: Infinity,
@@ -77,9 +77,17 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
       );
     }
 
-    if (typeof node === "number")
-      // @ts-expect-error -- custom css prop
-      return <span key={crypto.randomUUID()} style={{ "--d": `${node}ms` }} />;
+    if (typeof node === "number") {
+      const [duration, reverseDuration] = node > 0 ? [node, 0] : [0, -node];
+      return (
+        <span
+          key={crypto.randomUUID()}
+          className={[styles.word, styles.wait].join(" ")}
+          // @ts-expect-error -- custom css prop
+          style={{ "--d": `${duration}ms`, "--r": `${reverseDuration}ms` }}
+        />
+      );
+    }
     return node;
   };
   return handleNode(children);
@@ -87,19 +95,25 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
 
 const TypingAnimation = ({
   children,
-  speed,
-  delSpeed,
-  repeat,
-  steps,
   className,
+  delSpeed,
   noCursor,
+  repeat,
+  speed,
+  steps,
+  style,
   ...props
 }: DefaultTypeOutProps) => {
   const [processing, setProcessing] = useState(true);
-  const animatedSteps = useMemo(
-    () => (children ? [children, ...steps] : steps).map(setupTypingFX),
-    [children, steps],
-  );
+  const animatedSteps = useMemo(() => {
+    const newSteps = children ? [children, ...steps] : steps;
+    if (newSteps.length < 2) {
+      newSteps.push("");
+      newSteps.push("");
+    }
+    console.log(newSteps);
+    return newSteps.map(setupTypingFX);
+  }, [children, steps]);
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!containerRef.current) return;
@@ -107,11 +121,11 @@ const TypingAnimation = ({
     const enqueue = (node: Element, els: Element[]) => {
       els.push(node);
       const el = node as HTMLElement;
-      if (node.classList.contains(styles.hk)) el.style.setProperty("--d", "0s");
+      if (node.classList.contains(styles.hk)) el.style.setProperty("--n", "0");
       else if (node.classList.contains(styles.word)) {
         const len = node.textContent?.length ?? 0;
         const width = el.offsetWidth;
-        el.style.setProperty("--d", `${len / speed}s`);
+        el.style.setProperty("--n", `${len}`);
         el.style.setProperty("--w", `${width}px`);
       }
 
@@ -124,20 +138,53 @@ const TypingAnimation = ({
       elements.push(els);
     });
 
-    // Compare steps and wire links
+    // Compare steps and adjust durations
+    for (let i = 0; i < elements.length; i++) {
+      const currentStepEls = elements[i];
+      const nextStepEls = elements[(i + 1) % elements.length];
+
+      for (let j = 0; j < currentStepEls.length && j < nextStepEls.length; j++) {
+        const isCurrentStepWord = currentStepEls[j].classList.contains(styles.word);
+        const isNextStepWord = nextStepEls[j].classList.contains(styles.word);
+        if (
+          isCurrentStepWord &&
+          isNextStepWord &&
+          currentStepEls[j].textContent === nextStepEls[j].textContent
+        ) {
+          (nextStepEls[j] as HTMLElement).classList.add(styles.t0);
+          (currentStepEls[j] as HTMLElement).classList.add(styles.d0);
+        } else if (isCurrentStepWord || isNextStepWord) {
+          break;
+        }
+      }
+    }
+
+    // link animations
     let repeatCount = 0;
 
-    for (const els of elements) {
-      for (let j = 0; j < els.length - 1; j++) {
-        const el = els[j] as HTMLElement;
-        const nextEl = els[j + 1] as HTMLElement;
+    for (let i = 0; i < elements.length; i++) {
+      for (let j = 0; j < elements[i].length; j++) {
+        const el = elements[i][j] as HTMLElement;
+        const nextEl = elements[i][j + 1] as HTMLElement | undefined;
+        const prevEl = elements[i][j - 1] as HTMLElement | undefined;
         el.addEventListener("animationend", e => {
           e.stopPropagation();
-          el.style.width = el.style.getPropertyValue("--w");
-          el.style.height = "auto";
-          el.classList.remove(styles.type);
-          el.classList.remove(styles.hk);
-          nextEl.classList.add(styles.type);
+          if (el.classList.contains(styles.type)) {
+            el.style.width = el.style.getPropertyValue("--w");
+            el.classList.remove(styles.type);
+            el.classList.remove(styles.hk);
+            if (nextEl) nextEl.classList.add(styles.type);
+            else el.classList.add(styles.del);
+          } else {
+            el.style.width = "0";
+            el.classList.remove(styles.del);
+            if (!el.classList.contains(styles.word)) el.classList.add(styles.hk);
+            if (prevEl) prevEl.classList.add(styles.del);
+            else if (i === elements.length - 1) {
+              if (repeatCount < repeat) elements[0][0].classList.add(styles.type);
+              repeatCount++;
+            } else elements[i + 1][0].classList.add(styles.type);
+          }
         });
       }
     }
@@ -147,11 +194,10 @@ const TypingAnimation = ({
     });
 
     setProcessing(false);
-  }, [animatedSteps, speed]);
+  }, [animatedSteps, delSpeed, repeat, speed]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      console.log("visibility changed", document.visibilityState);
       containerRef.current?.classList[document.visibilityState === "visible" ? "remove" : "add"](
         styles.pause,
       );
@@ -171,6 +217,8 @@ const TypingAnimation = ({
         noCursor ? "" : styles.cursor,
       ].join(" ")}
       ref={containerRef}
+      // @ts-expect-error -- using custom CSS variables
+      style={{ "--speed": speed, "--delSpeed": delSpeed, ...style }}
       data-testid="type-out">
       {animatedSteps.map((step, i) => (
         <div key={i} className={styles.hk}>
@@ -208,9 +256,9 @@ export const TypeOut = (props_: TypeOutProps) => {
   }, []);
 
   /**
-   * Do not animate if repeat is 0 or negative
+   * Do not animate if prefers-reduced-motion
    */
-  return (!force && suppressAnimation) || repeat < 1 ? (
+  return !force && suppressAnimation ? (
     <div {...props}>{steps[steps.length - 1] || children || steps[0]}</div>
   ) : (
     <TypingAnimation {...props} {...{ children, steps, repeat }} />
