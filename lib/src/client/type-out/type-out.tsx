@@ -96,7 +96,7 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
 /**
  * Compare steps and adjust durations
  */
-const compareStepsAndAdjustDurations = (elements: Element[][]) => {
+const compareStepsAndAdjustDurations = (elements: HTMLElement[][]) => {
   for (let i = 0; i < elements.length; i++) {
     const currentStepEls = elements[i];
     const nextStepEls = elements[(i + 1) % elements.length];
@@ -109,8 +109,8 @@ const compareStepsAndAdjustDurations = (elements: Element[][]) => {
         isNextStepWord &&
         currentStepEls[j].textContent === nextStepEls[j].textContent
       ) {
-        (nextStepEls[j] as HTMLElement).classList.add(styles.t0);
-        (currentStepEls[j] as HTMLElement).classList.add(styles.d0);
+        nextStepEls[j].classList.add(styles.t0);
+        currentStepEls[j].classList.add(styles.d0);
       } else if (isCurrentStepWord || isNextStepWord) {
         break;
       }
@@ -121,14 +121,14 @@ const compareStepsAndAdjustDurations = (elements: Element[][]) => {
 /**
  * Add animation listeners
  */
-const addAnimationListeners = (elements: Element[][], repeat: number) => {
+const addAnimationListeners = (elements: HTMLElement[][], repeat: number) => {
   let repeatCount = 0;
+
   for (let i = 0; i < elements.length; i++) {
     for (let j = 0; j < elements[i].length; j++) {
       const el = elements[i][j] as HTMLElement;
       const nextEl = elements[i][j + 1] as HTMLElement | undefined;
       const prevEl = elements[i][j - 1] as HTMLElement | undefined;
-      const i1 = i;
 
       const animListener = (e: AnimationEvent) => {
         e.stopPropagation();
@@ -138,7 +138,6 @@ const addAnimationListeners = (elements: Element[][], repeat: number) => {
           el.classList.remove(styles.hk);
           if (nextEl) nextEl.classList.add(styles.type);
           else {
-            if (i1 === 0 && repeatCount === 0) compareStepsAndAdjustDurations(elements);
             el.classList.add(styles.del);
           }
         } else {
@@ -202,7 +201,25 @@ const TypingAnimation = ({
       elements.push(els);
     });
 
-    addAnimationListeners(elements, repeat);
+    // first step always starts from empty string
+    for (let i = 0; i < elements[0].length; i++) {
+      const el = elements[0][i] as HTMLElement;
+      const nextEl = elements[0][i + 1] as HTMLElement;
+      const animListener = (e: AnimationEvent) => {
+        e.stopPropagation();
+        el.removeEventListener("animationend", animListener);
+        el.style.width = el.style.getPropertyValue("--w");
+        el.classList.remove(styles.type);
+        el.classList.remove(styles.hk);
+        if (nextEl) nextEl.classList.add(styles.type);
+        else {
+          compareStepsAndAdjustDurations(elements as HTMLElement[][]);
+          addAnimationListeners(elements as HTMLElement[][], repeat);
+          el.classList.add(styles.del);
+        }
+      };
+      el.addEventListener("animationend", animListener);
+    }
 
     requestAnimationFrame(() => {
       elements[0][0].classList.add(styles.type);

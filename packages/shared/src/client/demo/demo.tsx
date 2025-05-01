@@ -11,9 +11,8 @@ export function Demo() {
         steps={[
           <p>Hare Krishna Hare Krishna Hare Krishna</p>,
           <p>Hare Krishna Hare Krishna Krishna Krishna Hare Hare</p>,
-        ]}
-        speed={20}
-        delSpeed={40}></TypeOut>
+          <p>Hare Krishna, Hare Rama</p>,
+        ]}></TypeOut>
     </div>
   );
 }
