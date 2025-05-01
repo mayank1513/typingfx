@@ -121,14 +121,20 @@ const compareStepsAndAdjustDurations = (elements: HTMLElement[][]) => {
 /**
  * Add animation listeners
  */
-const addAnimationListeners = (elements: HTMLElement[][], repeat: number) => {
+const addAnimationListeners = (
+  elements: HTMLElement[][],
+  stepStartIndices: number[],
+  repeat: number,
+) => {
   let repeatCount = 0;
 
   for (let i = 0; i < elements.length; i++) {
-    for (let j = 0; j < elements[i].length; j++) {
+    for (let j = 1; j < elements[i].length; j++) {
       const el = elements[i][j] as HTMLElement;
       const nextEl = elements[i][j + 1] as HTMLElement | undefined;
       const prevEl = elements[i][j - 1] as HTMLElement | undefined;
+      const j1 = j;
+      const i1 = i;
 
       const animListener = (e: AnimationEvent) => {
         e.stopPropagation();
@@ -144,11 +150,15 @@ const addAnimationListeners = (elements: HTMLElement[][], repeat: number) => {
           el.style.width = "0";
           el.classList.remove(styles.del);
           if (!el.classList.contains(styles.word)) el.classList.add(styles.hk);
-          if (prevEl) prevEl.classList.add(styles.del);
-          else if (i === elements.length - 1) {
-            if (repeatCount < repeat) elements[0][0].classList.add(styles.type);
-            repeatCount++;
-          } else elements[i + 1][0].classList.add(styles.type);
+          if (j1 === stepStartIndices[i1]) {
+            if (i1 === elements.length - 1 && repeatCount++ >= repeat) return;
+            const i2 = (i1 + 1) % elements.length;
+            const nextStepEls = elements[i2];
+            for (let k = 0; k < stepStartIndices[i2]; k++)
+              nextStepEls[k].classList.remove(styles.hk);
+            for (let k = 0; k < j1; k++) elements[i1][k].classList.add(styles.hk);
+            nextStepEls[j1].classList.add(styles.type);
+          } else if (prevEl) prevEl.classList.add(styles.del);
         }
       };
       el.addEventListener("animationend", animListener);
@@ -201,6 +211,12 @@ const TypingAnimation = ({
       elements.push(els);
     });
 
+    const stepStartIndices = elements.map(els => {
+      let ind = 0;
+      while (els[ind].classList.contains(styles.hk)) ind++;
+      return ind;
+    });
+
     // first step always starts from empty string
     for (let i = 0; i < elements[0].length; i++) {
       const el = elements[0][i] as HTMLElement;
@@ -214,7 +230,7 @@ const TypingAnimation = ({
         if (nextEl) nextEl.classList.add(styles.type);
         else {
           compareStepsAndAdjustDurations(elements as HTMLElement[][]);
-          addAnimationListeners(elements as HTMLElement[][], repeat);
+          addAnimationListeners(elements as HTMLElement[][], stepStartIndices, repeat);
           el.classList.add(styles.del);
         }
       };
@@ -222,7 +238,9 @@ const TypingAnimation = ({
     }
 
     requestAnimationFrame(() => {
-      elements[0][0].classList.add(styles.type);
+      let i = 0;
+      for (; i < stepStartIndices[0]; i++) elements[0][i].classList.remove(styles.hk);
+      elements[0][i].classList.add(styles.type);
     });
 
     setProcessing(false);
