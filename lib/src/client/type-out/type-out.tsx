@@ -93,6 +93,70 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
   return handleNode(children);
 };
 
+/**
+ * Compare steps and adjust durations
+ */
+const compareStepsAndAdjustDurations = (elements: Element[][]) => {
+  for (let i = 0; i < elements.length; i++) {
+    const currentStepEls = elements[i];
+    const nextStepEls = elements[(i + 1) % elements.length];
+
+    for (let j = 0; j < currentStepEls.length && j < nextStepEls.length; j++) {
+      const isCurrentStepWord = currentStepEls[j].classList.contains(styles.word);
+      const isNextStepWord = nextStepEls[j].classList.contains(styles.word);
+      if (
+        isCurrentStepWord &&
+        isNextStepWord &&
+        currentStepEls[j].textContent === nextStepEls[j].textContent
+      ) {
+        (nextStepEls[j] as HTMLElement).classList.add(styles.t0);
+        (currentStepEls[j] as HTMLElement).classList.add(styles.d0);
+      } else if (isCurrentStepWord || isNextStepWord) {
+        break;
+      }
+    }
+  }
+};
+
+/**
+ * Add animation listeners
+ */
+const addAnimationListeners = (elements: Element[][], repeat: number) => {
+  let repeatCount = 0;
+  for (let i = 0; i < elements.length; i++) {
+    for (let j = 0; j < elements[i].length; j++) {
+      const el = elements[i][j] as HTMLElement;
+      const nextEl = elements[i][j + 1] as HTMLElement | undefined;
+      const prevEl = elements[i][j - 1] as HTMLElement | undefined;
+      const i1 = i;
+
+      const animListener = (e: AnimationEvent) => {
+        e.stopPropagation();
+        if (el.classList.contains(styles.type)) {
+          el.style.width = el.style.getPropertyValue("--w");
+          el.classList.remove(styles.type);
+          el.classList.remove(styles.hk);
+          if (nextEl) nextEl.classList.add(styles.type);
+          else {
+            if (i1 === 0 && repeatCount === 0) compareStepsAndAdjustDurations(elements);
+            el.classList.add(styles.del);
+          }
+        } else {
+          el.style.width = "0";
+          el.classList.remove(styles.del);
+          if (!el.classList.contains(styles.word)) el.classList.add(styles.hk);
+          if (prevEl) prevEl.classList.add(styles.del);
+          else if (i === elements.length - 1) {
+            if (repeatCount < repeat) elements[0][0].classList.add(styles.type);
+            repeatCount++;
+          } else elements[i + 1][0].classList.add(styles.type);
+        }
+      };
+      el.addEventListener("animationend", animListener);
+    }
+  }
+};
+
 const TypingAnimation = ({
   children,
   className,
@@ -138,56 +202,7 @@ const TypingAnimation = ({
       elements.push(els);
     });
 
-    // Compare steps and adjust durations
-    for (let i = 0; i < elements.length; i++) {
-      const currentStepEls = elements[i];
-      const nextStepEls = elements[(i + 1) % elements.length];
-
-      for (let j = 0; j < currentStepEls.length && j < nextStepEls.length; j++) {
-        const isCurrentStepWord = currentStepEls[j].classList.contains(styles.word);
-        const isNextStepWord = nextStepEls[j].classList.contains(styles.word);
-        if (
-          isCurrentStepWord &&
-          isNextStepWord &&
-          currentStepEls[j].textContent === nextStepEls[j].textContent
-        ) {
-          (nextStepEls[j] as HTMLElement).classList.add(styles.t0);
-          (currentStepEls[j] as HTMLElement).classList.add(styles.d0);
-        } else if (isCurrentStepWord || isNextStepWord) {
-          break;
-        }
-      }
-    }
-
-    // link animations
-    let repeatCount = 0;
-
-    for (let i = 0; i < elements.length; i++) {
-      for (let j = 0; j < elements[i].length; j++) {
-        const el = elements[i][j] as HTMLElement;
-        const nextEl = elements[i][j + 1] as HTMLElement | undefined;
-        const prevEl = elements[i][j - 1] as HTMLElement | undefined;
-        el.addEventListener("animationend", e => {
-          e.stopPropagation();
-          if (el.classList.contains(styles.type)) {
-            el.style.width = el.style.getPropertyValue("--w");
-            el.classList.remove(styles.type);
-            el.classList.remove(styles.hk);
-            if (nextEl) nextEl.classList.add(styles.type);
-            else el.classList.add(styles.del);
-          } else {
-            el.style.width = "0";
-            el.classList.remove(styles.del);
-            if (!el.classList.contains(styles.word)) el.classList.add(styles.hk);
-            if (prevEl) prevEl.classList.add(styles.del);
-            else if (i === elements.length - 1) {
-              if (repeatCount < repeat) elements[0][0].classList.add(styles.type);
-              repeatCount++;
-            } else elements[i + 1][0].classList.add(styles.type);
-          }
-        });
-      }
-    }
+    addAnimationListeners(elements, repeat);
 
     requestAnimationFrame(() => {
       elements[0][0].classList.add(styles.type);
