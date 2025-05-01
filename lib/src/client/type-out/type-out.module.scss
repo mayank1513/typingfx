@@ -1,8 +1,5 @@
-.typeout {
-  position: relative;
-  * {
-    transition: all 0s !important;
-  }
+.typeout * {
+  transition: all 0s !important;
 }
 
 .word {
@@ -25,18 +22,22 @@
   }
 }
 
-.anim {
+.type {
   animation: type steps(20) var(--d);
-  position: relative;
-  &::after {
-    content: " ";
-    position: absolute;
-    right: 1px;
-    width: 1px;
-    height: 100%;
-    background: currentColor;
-    animation: blink 1s infinite;
-  }
+}
+
+.cursor .anim::after {
+  content: " ";
+  position: absolute;
+  right: 1px;
+  width: 1px;
+  height: 100%;
+  background: currentColor;
+  animation: blink 1s infinite;
+}
+
+.pause * {
+  animation-play-state: paused !important;
 }
 
 @keyframes blink {
@@ -52,6 +53,17 @@
   }
   to {
     width: var(--w);
+    height: auto;
+  }
+}
+
+@keyframes del {
+  from {
+    width: var(--w);
+    height: auto;
+  }
+  to {
+    width: 0;
     height: auto;
   }
 }
