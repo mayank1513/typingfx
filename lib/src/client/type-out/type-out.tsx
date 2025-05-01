@@ -48,7 +48,7 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
 
     if (typeof node === "number")
       // @ts-expect-error -- custom css prop
-      return <span key={crypto.randomUUID()} style={{ "--d": `${node}ms` }}></span>;
+      return <span key={crypto.randomUUID()} style={{ "--d": `${node}ms` }} />;
     return node;
   };
   return handleNode(children);
@@ -90,8 +90,6 @@ export const TypeOut = (props_: TypeOutProps) => {
     };
     Array.from(containerRef.current.children).forEach(enqueue);
 
-    console.log("els ---- ", elements);
-
     for (let i = 0; i < elements.length - 1; i++) {
       const el = elements[i] as HTMLElement;
       const nextEl = elements[i + 1] as HTMLElement;
@@ -102,7 +100,6 @@ export const TypeOut = (props_: TypeOutProps) => {
         el.classList.remove(styles.anim);
         el.classList.remove(styles.hk);
         nextEl.classList.add(styles.anim);
-        console.log({ el, nextEl });
       });
     }
 
