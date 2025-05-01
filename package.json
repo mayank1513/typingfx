@@ -10,11 +10,13 @@
     "lint:fix": "turbo lint:fix",
     "test": "turbo test",
     "typecheck": "turbo typecheck",
-    "preinstall": "node scripts/update-pm.js"
+    "preinstall": "node scripts/update-pm.js",
+    "changeset": "pnpm changeset"
   },
   "pre-commit": [
     "lint:fix",
-    "format"
+    "format",
+    "changeset"
   ],
   "devDependencies": {
     "@changesets/cli": "^2.28.1",
