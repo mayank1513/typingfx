@@ -1,7 +1,7 @@
 import { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./type-out.module.scss";
 import { Optional } from "@m2d/core/utils";
-import { addAnimationListeners, setupTypingFX } from "./utils";
+import { addAnimationListeners, listElements, setupTypingFX } from "./utils";
 
 /**
  * Props for the TypeOut component.
@@ -63,8 +63,10 @@ const TypingAnimation = ({
   ...props
 }: DefaultTypeOutProps) => {
   const [processing, setProcessing] = useState(true);
+
   const animatedSteps = useMemo(() => {
     const newSteps = children ? [...steps, children] : steps;
+    console.log({ children, steps, newSteps });
     if (newSteps.length < 2) newSteps.unshift("", "");
     return newSteps.map(setupTypingFX);
   }, [children, steps]);
@@ -73,48 +75,34 @@ const TypingAnimation = ({
 
   // Trigger animations on mount or changes
   useEffect(() => {
-    if (!containerRef.current) return;
     setProcessing(true);
 
-    const enqueue = (node: Element, els: Element[]) => {
-      els.push(node);
-      const el = node as HTMLElement;
-      if (el.classList.contains(styles.hk)) el.style.setProperty("--n", "0");
-      else if (el.classList.contains(styles.word)) {
-        el.style.setProperty("--n", `${el.textContent?.length ?? 0}`);
-        el.style.setProperty("--w", `${el.offsetWidth}px`);
+    requestAnimationFrame(() => {
+      if (!containerRef.current) return;
+      const elements = listElements(containerRef.current);
+
+      for (let i = 0; i < elements[0].length; i++) {
+        const el = elements[0][i] as HTMLElement;
+        const nextEl = elements[0][i + 1] as HTMLElement;
+        el.onanimationend = (e: AnimationEvent) => {
+          e.stopPropagation();
+          el.style.width = el.style.getPropertyValue("--w");
+          el.classList.remove(styles.type, styles.hk);
+
+          // skipcq: JS-0354
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          nextEl
+            ? nextEl.classList.add(styles.type)
+            : (addAnimationListeners(elements as HTMLElement[][], repeat, noCursorAfterAnimEnd),
+              el.classList.add(styles.del));
+        };
       }
-      Array.from(node.children).forEach(child => enqueue(child, els));
-    };
 
-    const elements: Element[][] = [];
-    Array.from(containerRef.current.children).forEach(child => {
-      const els: Element[] = [];
-      enqueue(child, els);
-      elements.push(els);
+      console.log({ elements });
+
+      requestAnimationFrame(() => elements[0][0].classList.add(styles.type));
+      setProcessing(false);
     });
-
-    for (let i = 0; i < elements[0].length; i++) {
-      const el = elements[0][i] as HTMLElement;
-      const nextEl = elements[0][i + 1] as HTMLElement;
-      const animListener = (e: AnimationEvent) => {
-        e.stopPropagation();
-        el.removeEventListener("animationend", animListener);
-        el.style.width = el.style.getPropertyValue("--w");
-        el.classList.remove(styles.type, styles.hk);
-
-        // skipcq: JS-0354
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        nextEl
-          ? nextEl.classList.add(styles.type)
-          : (addAnimationListeners(elements as HTMLElement[][], repeat, noCursorAfterAnimEnd),
-            el.classList.add(styles.del));
-      };
-      el.addEventListener("animationend", animListener);
-    }
-
-    requestAnimationFrame(() => elements[0][0].classList.add(styles.type));
-    setProcessing(false);
   }, [animatedSteps, repeat, noCursorAfterAnimEnd]);
 
   // Respect pause and pause on visibility hidden

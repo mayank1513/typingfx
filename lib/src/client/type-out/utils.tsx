@@ -54,6 +54,30 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
 };
 
 /**
+ * list elements and apply custom CSS vars
+ */
+const enqueue = (node: Element, els: Element[]) => {
+  els.push(node);
+  const el = node as HTMLElement;
+  if (el.classList.contains(styles.hk)) el.style.setProperty("--n", "0");
+  else if (el.classList.contains(styles.word)) {
+    el.style.setProperty("--n", `${el.textContent?.length ?? 0}`);
+    el.style.setProperty("--w", `${el.offsetWidth}px`);
+  }
+  Array.from(node.children).forEach(child => enqueue(child, els));
+};
+/**
+ * list elements and apply custom CSS vars
+ */
+export const listElements = (root: HTMLElement): HTMLElement[][] => {
+  return Array.from(root.children).map(child => {
+    const els: Element[] = [];
+    enqueue(child, els);
+    return els;
+  }) as HTMLElement[][];
+};
+
+/**
  * Computes differing start index for each pair of steps to know what to animate.
  */
 const compareSteps = (elements: HTMLElement[][]): number[] => {
@@ -119,7 +143,7 @@ export const addAnimationListeners = (
       const nextEl = elements[i][j + 1];
       const prevEl = elements[i][j - 1];
 
-      const animListener = (e: AnimationEvent) => {
+      el.onanimationend = (e: AnimationEvent) => {
         e.stopPropagation();
         if (el.classList.contains(styles.type)) {
           updateAfterTypeAnim(el);
@@ -144,7 +168,6 @@ export const addAnimationListeners = (
           } else if (prevEl) prevEl.classList.add(styles.del);
         }
       };
-      el.addEventListener("animationend", animListener);
     }
   }
 };
