@@ -41,15 +41,18 @@
   height: 0 !important;
 }
 
+.cursor .cursor,
+.wait.del,
 .wait.type {
-  animation-duration: var(--d);
   width: auto !important;
   height: auto !important;
 }
+
+.wait.type {
+  animation-duration: var(--d);
+}
 .wait.del {
   animation-duration: var(--r);
-  width: auto !important;
-  height: auto !important;
 }
 
 .cursor .cursor::after,
