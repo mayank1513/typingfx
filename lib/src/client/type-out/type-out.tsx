@@ -19,6 +19,9 @@ interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
   /** Whether to hide the blinking cursor. @default false */
   noCursor: boolean;
 
+  /** Whether to hide the blinking cursor after completing the anim. @default false */
+  noCursorAfterAnimEnd: false;
+
   /** Sequence of steps (lines or phrases) to animate through. */
   steps: ReactNode[];
 
@@ -37,6 +40,7 @@ const defaultTypeOutProps: DefaultTypeOutProps = {
   speed: 20,
   delSpeed: 40,
   noCursor: false,
+  noCursorAfterAnimEnd: false,
   steps: [""],
   repeat: Infinity,
   force: false,
@@ -50,6 +54,7 @@ const TypingAnimation = ({
   className,
   delSpeed,
   noCursor,
+  noCursorAfterAnimEnd,
   repeat,
   speed,
   steps,
@@ -102,7 +107,7 @@ const TypingAnimation = ({
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         nextEl
           ? nextEl.classList.add(styles.type)
-          : (addAnimationListeners(elements as HTMLElement[][], repeat),
+          : (addAnimationListeners(elements as HTMLElement[][], repeat, noCursorAfterAnimEnd),
             el.classList.add(styles.del));
       };
       el.addEventListener("animationend", animListener);
@@ -110,7 +115,7 @@ const TypingAnimation = ({
 
     requestAnimationFrame(() => elements[0][0].classList.add(styles.type));
     setProcessing(false);
-  }, [animatedSteps, delSpeed, repeat, speed]);
+  }, [animatedSteps, repeat, noCursorAfterAnimEnd]);
 
   // Respect pause and pause on visibility hidden
   useEffect(() => {

@@ -97,7 +97,11 @@ const updateAfterDelAnim = (el: HTMLElement) => {
 /**
  * Handles the chain of animation listeners for typing + deleting effects across steps.
  */
-export const addAnimationListeners = (elements: HTMLElement[][], repeat: number) => {
+export const addAnimationListeners = (
+  elements: HTMLElement[][],
+  repeat: number,
+  noCursorAfterAnimEnd: boolean,
+) => {
   const stepStartIndices = compareSteps(elements);
   let iCheck = 0;
   while (iCheck < elements.length && elements[iCheck].length === stepStartIndices[iCheck]) iCheck++;
@@ -122,7 +126,7 @@ export const addAnimationListeners = (elements: HTMLElement[][], repeat: number)
           if (nextEl) nextEl.classList.add(styles.type);
           else if (i !== elements.length - 1 || repeatCount++ < repeat)
             el.classList.add(styles.del);
-          else el.classList.add(styles.cursor);
+          else if (!noCursorAfterAnimEnd) el.classList.add(styles.cursor);
         } else {
           updateAfterDelAnim(el);
           if (
