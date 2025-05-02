@@ -6,6 +6,7 @@ import styles from "./type-out.module.scss";
  * Supports waiting durations as numeric values.
  */
 export const setupTypingFX = (children: ReactNode): ReactNode => {
+  /** recursively setup the node */
   const handleNode = (node: ReactNode): ReactNode => {
     if (Array.isArray(node)) return node.map(handleNode);
 
