@@ -258,6 +258,113 @@ No extra setup needed – `TypeOut` is already marked as a client component.
 
 ---
 
+## ❓ FAQ & Gotchas
+
+<details>
+<summary>⚠️ <strong>Why does the animation restart on every re-render?</strong></summary>
+
+This usually happens when `steps` or `children` are _not memoized_, causing a new reference on every render.
+
+✅ **Fix:** Use `useMemo` to ensure stable references:
+
+```tsx
+const steps = useMemo(() => ["Hello", "World"], []);
+<TypeOut steps={steps} />;
+```
+
+</details>
+
+---
+
+<details>
+<summary>📏 <strong>Why is there extra space when adding delays between elements?</strong></summary>
+
+Inserting a delay like `{500}` **between block elements** (e.g. `<p>`) creates empty text nodes, leading to layout shifts.
+
+❌ Bad:
+
+```tsx
+<>
+  <p>Hi</p>
+  {500}
+  <p>Hello</p>
+</>
+```
+
+✅ Good:
+
+```tsx
+<>
+  <p>Hi{500}</p>
+  <p>Hello</p>
+</>
+```
+
+> 📌 **Tip:** Always place delays _inside_ a block to avoid glitches.
+
+</details>
+
+---
+
+<details>
+<summary>🧩 <strong>Does it work with RSC & Next.js 14/15?</strong></summary>
+
+Absolutely. `TypeOut` is already marked as a **client component**, so it works out of the box with:
+
+- ✅ React Server Components (RSC)
+- ✅ App Router
+- ✅ Server-side Rendering (SSR)
+</details>
+
+---
+
+<details>
+<summary>⏪ <strong>How do I add delay during deleting?</strong></summary>
+
+Use **negative numbers** like `{-500}` anywhere in the content.
+
+- `{800}` → pause for 800ms while typing
+- `{-500}` → pause for 500ms while deleting
+
+```tsx
+<TypeOut steps={["Start typing...", -1000, "Deleting now..."]} />
+```
+
+or
+
+```tsx
+<TypeOut>Wait before deleting me{-500}</TypeOut>
+```
+
+</details>
+
+---
+
+<details>
+<summary>🎨 <strong>How do I animate styled or rich text?</strong></summary>
+
+TypingFX supports JSX out of the box! You can mix `<strong>`, `<code>`, emojis, or even full components.
+
+```tsx
+<TypeOut
+  steps={[
+    <>
+      Writing with <strong>style</strong>
+    </>,
+    <>
+      Deployed via <code>Vercel</code>
+    </>,
+    <>💻 Happy Coding!</>,
+  ]}
+/>
+```
+
+> ✨ Fully supports React elements, fragments, and inline styles.
+
+</details>
+
+---
+
 ## 📁 License
 
 MPL-2.0 open-source license © [Mayank Chaudhari](https://github.com/mayank1513)
