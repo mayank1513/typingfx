@@ -1,5 +1,23 @@
 # typingfx
 
+## 1.0.0
+
+### Major Changes
+
+- eb0bd92: Use children as last step - this is more intuitive. When animation stops (in case of repeat < Infinity), children, if truthy, will be seen rendered.
+
+### Minor Changes
+
+- 704bd9b: Add option to control cursor visibility after compliting the type animation
+
+### Patch Changes
+
+- bf52379: fix: Handle cursor not shown after anim end when it ends with a number (a delay indicator).
+- 378bbdc: refactor: split utils in separate file. Export right prop types.
+- 9aab8c8: Fix step and children updates.
+- 1771179: Handle edge cases
+- b862fb0: Export utils for better test coverage as animationed is not supported in vitest env.
+
 ## 0.0.1
 
 ### Patch Changes

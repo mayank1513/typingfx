@@ -1,5 +1,18 @@
 # @repo/shared
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies [bf52379]
+- Updated dependencies [378bbdc]
+- Updated dependencies [704bd9b]
+- Updated dependencies [eb0bd92]
+- Updated dependencies [9aab8c8]
+- Updated dependencies [1771179]
+- Updated dependencies [b862fb0]
+  - typingfx@1.0.0
+
 ## 0.0.1
 
 ### Patch Changes
