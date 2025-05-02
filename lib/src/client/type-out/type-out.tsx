@@ -92,6 +92,7 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
       );
     }
 
+    /* v8 ignore next */
     return node;
   };
   return handleNode(children);
