@@ -106,13 +106,13 @@ const compareSteps = (elements: HTMLElement[][]): number[] => {
 };
 
 /** Update element styles after type animation */
-const updateAfterTypeAnim = (el: HTMLElement) => {
+export const updateAfterTypeAnim = (el: HTMLElement) => {
   el.style.width = el.style.getPropertyValue("--w");
   el.classList.remove(styles.type, styles.hk);
 };
 
 /** Update styles after del animation */
-const updateAfterDelAnim = (el: HTMLElement) => {
+export const updateAfterDelAnim = (el: HTMLElement) => {
   el.style.width = "0";
   el.classList.remove(styles.del);
   if (!el.classList.contains(styles.word)) el.classList.add(styles.hk);
