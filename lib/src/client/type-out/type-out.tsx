@@ -172,11 +172,11 @@ const addAnimationListeners = (elements: HTMLElement[][], repeat: number) => {
         if (el.classList.contains(styles.type)) {
           updateAfterTypeAnim(el);
           if (nextEl) nextEl.classList.add(styles.type);
-          else el.classList.add(styles.del);
+          else if (i1 !== elements.length - 1 || repeatCount++ < repeat)
+            el.classList.add(styles.del);
         } else {
           updateAfterDelAnim(el);
           if (j1 === stepStartIndices[i1]) {
-            if (i1 === elements.length - 1 && repeatCount++ >= repeat) return;
             let i2 = (i1 + 1) % elements.length;
             while (elements[i2].length === stepStartIndices[i2]) i2 = (i2 + 1) % elements.length;
             const nextStepEls = elements[i2];
@@ -308,7 +308,7 @@ const TypingAnimation = ({
  * @source - Source code
  */
 export const TypeOut = (props_: TypeOutProps) => {
-  const { children, repeat, force, steps, ...props } = {
+  const { children, force, steps, ...props } = {
     ...defaultTypeOutProps,
     ...props_,
   };
@@ -329,6 +329,6 @@ export const TypeOut = (props_: TypeOutProps) => {
   return !force && suppressAnimation ? (
     <div {...props}>{steps[steps.length - 1] || children || steps[0]}</div>
   ) : (
-    <TypingAnimation {...props} {...{ children, steps, repeat }} />
+    <TypingAnimation {...props} {...{ children, steps }} />
   );
 };

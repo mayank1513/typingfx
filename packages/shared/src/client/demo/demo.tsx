@@ -18,7 +18,7 @@ export function Demo() {
   return (
     <div className={styles.demo}>
       <button onClick={() => setPaused(!paused)}>{paused ? "Resume" : "Pause"}</button>
-      <TypeOut paused={paused} steps={steps}></TypeOut>
+      <TypeOut paused={paused} steps={steps} repeat={1}></TypeOut>
     </div>
   );
 }
