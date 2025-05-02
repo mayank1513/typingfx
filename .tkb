@@ -6,16 +6,6 @@
       "description": "Set up `CodeClimate`\n  - Visit CodeClimate and set up your repo\n  - Create [repository secret] for `CC_TEST_REPORTER_ID`\n  - Add `*.test.*` to ignore patterns on the website\n  - Update Code Climate badge",
       "columnId": "column-todo"
     },
-    "P_NrSJQ8m91Odgz8E1fS6": {
-      "id": "P_NrSJQ8m91Odgz8E1fS6",
-      "description": "Create your library and update examples",
-      "columnId": "column-todo"
-    },
-    "1dRWJhy45E1Rq5wZAmPHt": {
-      "id": "1dRWJhy45E1Rq5wZAmPHt",
-      "description": "Update README as required",
-      "columnId": "column-todo"
-    },
     "_JiH9RZLmUF5nxD7lBC5B": {
       "id": "_JiH9RZLmUF5nxD7lBC5B",
       "description": "Create a new GitHub repository using this template.\n  - Click the `Use this template` button at the top right -> `Create a new repository`\n  - Click `Create repository` and wait for the setup workflow to finish rebranding your repo.",
@@ -37,9 +27,7 @@
       "id": "column-todo",
       "title": "To do",
       "tasksIds": [
-        "MLLUsAhCKaKxvEXFY0HSq",
-        "P_NrSJQ8m91Odgz8E1fS6",
-        "1dRWJhy45E1Rq5wZAmPHt"
+        "MLLUsAhCKaKxvEXFY0HSq"
       ]
     },
     {
