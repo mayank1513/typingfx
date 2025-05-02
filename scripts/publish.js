@@ -63,6 +63,4 @@ try {
   execSync(`gh release create ${VERSION} --generate-notes --latest --title "Release v${VERSION}"`);
 }
 
-execSync("node ./scripts/lite.js");
 execSync(`cd lib && pnpm build && npm publish ${provenance} --access public`);
-
