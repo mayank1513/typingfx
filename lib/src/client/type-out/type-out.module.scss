@@ -58,7 +58,7 @@
   animation: blink 1s infinite;
 }
 
-.pause * {
+.paused * {
   animation-play-state: paused !important;
 }
 

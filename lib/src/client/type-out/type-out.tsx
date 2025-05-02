@@ -40,18 +40,18 @@ export interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
   /**
    * Control paused state
    */
-  pause: boolean;
+  paused: boolean;
 }
 
 const defaultTypeOutProps: DefaultTypeOutProps = {
   children: "",
-  speed: 30,
-  delSpeed: 60,
+  speed: 10,
+  delSpeed: 20,
   noCursor: false,
   steps: [""],
   repeat: Infinity,
   force: false,
-  pause: false,
+  paused: false,
 };
 
 type TypeOutProps = Optional<DefaultTypeOutProps>;
@@ -102,40 +102,63 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
 };
 
 /**
- * Compare steps and adjust durations
+ * Compare steps
  */
-const compareStepsAndAdjustDurations = (elements: HTMLElement[][]) => {
+const compareSteps = (elements: HTMLElement[][]): number[] => {
+  const stepStartIndices: number[] = [];
   for (let i = 0; i < elements.length; i++) {
     const currentStepEls = elements[i];
     const nextStepEls = elements[(i + 1) % elements.length];
-
-    for (let j = 0; j < currentStepEls.length && j < nextStepEls.length; j++) {
+    let j = 0;
+    for (; j < currentStepEls.length && j < nextStepEls.length; j++) {
       const isCurrentStepWord = currentStepEls[j].classList.contains(styles.word);
       const isNextStepWord = nextStepEls[j].classList.contains(styles.word);
       if (
-        isCurrentStepWord &&
-        isNextStepWord &&
-        currentStepEls[j].textContent === nextStepEls[j].textContent
+        !(
+          isCurrentStepWord &&
+          isNextStepWord &&
+          currentStepEls[j].textContent === nextStepEls[j].textContent
+        ) &&
+        (isCurrentStepWord || isNextStepWord)
       ) {
-        nextStepEls[j].classList.add(styles.t0);
-        currentStepEls[j].classList.add(styles.d0);
-      } else if (isCurrentStepWord || isNextStepWord) {
         break;
       }
     }
+    stepStartIndices.push(j);
   }
+  return stepStartIndices;
+};
+
+/**
+ * update element after type animation
+ */
+const updateAfterTypeAnim = (el: HTMLElement) => {
+  el.style.width = el.style.getPropertyValue("--w");
+  el.classList.remove(styles.type);
+  el.classList.remove(styles.hk);
+};
+
+/**
+ * update after del animation
+ */
+const updateAfterDelAnim = (el: HTMLElement) => {
+  el.style.width = "0";
+  el.classList.remove(styles.del);
+  if (!el.classList.contains(styles.word)) el.classList.add(styles.hk);
 };
 
 /**
  * Add animation listeners
  */
-const addAnimationListeners = (
-  elements: HTMLElement[][],
-  stepStartIndices: number[],
-  repeat: number,
-) => {
-  let repeatCount = 0;
+const addAnimationListeners = (elements: HTMLElement[][], repeat: number) => {
+  const stepStartIndices = compareSteps(elements as HTMLElement[][]);
 
+  let iCheck = 0;
+  while (iCheck < elements.length && elements[iCheck].length === stepStartIndices[iCheck]) iCheck++;
+  // All steps are exactly same
+  if (iCheck === elements.length) return;
+
+  let repeatCount = 0;
   for (let i = 0; i < elements.length; i++) {
     for (let j = 1; j < elements[i].length; j++) {
       const el = elements[i][j] as HTMLElement;
@@ -147,24 +170,18 @@ const addAnimationListeners = (
       const animListener = (e: AnimationEvent) => {
         e.stopPropagation();
         if (el.classList.contains(styles.type)) {
-          el.style.width = el.style.getPropertyValue("--w");
-          el.classList.remove(styles.type);
-          el.classList.remove(styles.hk);
+          updateAfterTypeAnim(el);
           if (nextEl) nextEl.classList.add(styles.type);
-          else {
-            el.classList.add(styles.del);
-          }
+          else el.classList.add(styles.del);
         } else {
-          el.style.width = "0";
-          el.classList.remove(styles.del);
-          if (!el.classList.contains(styles.word)) el.classList.add(styles.hk);
+          updateAfterDelAnim(el);
           if (j1 === stepStartIndices[i1]) {
             if (i1 === elements.length - 1 && repeatCount++ >= repeat) return;
-            const i2 = (i1 + 1) % elements.length;
+            let i2 = (i1 + 1) % elements.length;
+            while (elements[i2].length === stepStartIndices[i2]) i2 = (i2 + 1) % elements.length;
             const nextStepEls = elements[i2];
-            for (let k = 0; k < stepStartIndices[i2]; k++)
-              nextStepEls[k].classList.remove(styles.hk);
-            for (let k = 0; k < j1; k++) elements[i1][k].classList.add(styles.hk);
+            for (let k = 0; k < j1; k++) updateAfterTypeAnim(nextStepEls[k]);
+            for (let k = 0; k < j1; k++) updateAfterDelAnim(elements[i1][k]);
             nextStepEls[j1].classList.add(styles.type);
           } else if (prevEl) prevEl.classList.add(styles.del);
         }
@@ -183,7 +200,7 @@ const TypingAnimation = ({
   speed,
   steps,
   style,
-  pause,
+  paused,
   ...props
 }: DefaultTypeOutProps) => {
   const [processing, setProcessing] = useState(true);
@@ -193,7 +210,6 @@ const TypingAnimation = ({
       newSteps.push("");
       newSteps.push("");
     }
-    console.log(newSteps);
     return newSteps.map(setupTypingFX);
   }, [children, steps]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -220,12 +236,6 @@ const TypingAnimation = ({
       elements.push(els);
     });
 
-    const stepStartIndices = elements.map(els => {
-      let ind = 0;
-      while (els[ind].classList.contains(styles.hk)) ind++;
-      return ind;
-    });
-
     // first step always starts from empty string
     for (let i = 0; i < elements[0].length; i++) {
       const el = elements[0][i] as HTMLElement;
@@ -238,37 +248,32 @@ const TypingAnimation = ({
         el.classList.remove(styles.hk);
         if (nextEl) nextEl.classList.add(styles.type);
         else {
-          compareStepsAndAdjustDurations(elements as HTMLElement[][]);
-          addAnimationListeners(elements as HTMLElement[][], stepStartIndices, repeat);
+          addAnimationListeners(elements as HTMLElement[][], repeat);
           el.classList.add(styles.del);
         }
       };
       el.addEventListener("animationend", animListener);
     }
 
-    requestAnimationFrame(() => {
-      let i = 0;
-      for (; i < stepStartIndices[0]; i++) elements[0][i].classList.remove(styles.hk);
-      elements[0][i].classList.add(styles.type);
-    });
+    requestAnimationFrame(() => elements[0][0].classList.add(styles.type));
 
     setProcessing(false);
   }, [animatedSteps, delSpeed, repeat, speed]);
 
   useEffect(() => {
-    if (pause) {
-      containerRef.current?.classList.add(styles.pause);
+    if (paused) {
+      containerRef.current?.classList.add(styles.paused);
       return () => null;
     }
     const handleVisibilityChange = () => {
       containerRef.current?.classList[document.visibilityState === "visible" ? "remove" : "add"](
-        styles.pause,
+        styles.paused,
       );
     };
     handleVisibilityChange();
     addEventListener("visibilitychange", handleVisibilityChange);
     return () => removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [pause]);
+  }, [paused]);
 
   return (
     <div
