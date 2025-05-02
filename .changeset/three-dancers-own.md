@@ -1,5 +1,0 @@
----
-"typingfx": patch
----
-
-fix cursor

@@ -1,5 +1,0 @@
----
-"typingfx": patch
----
-
-Fix repeat
