@@ -197,8 +197,8 @@ const TypingAnimation = ({
 }: DefaultTypeOutProps) => {
   const [processing, setProcessing] = useState(true);
   const animatedSteps = useMemo(() => {
-    const newSteps = children ? [children, ...steps] : steps;
-    if (newSteps.length < 2) newSteps.push("", "");
+    const newSteps = children ? [...steps, children] : steps;
+    if (newSteps.length < 2) newSteps.unshift("", "");
     return newSteps.map(setupTypingFX);
   }, [children, steps]);
 
