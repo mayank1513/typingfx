@@ -37,6 +37,10 @@ export interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
    * @default false
    */
   force?: boolean;
+  /**
+   * Control paused state
+   */
+  pause: boolean;
 }
 
 const defaultTypeOutProps: DefaultTypeOutProps = {
@@ -47,6 +51,7 @@ const defaultTypeOutProps: DefaultTypeOutProps = {
   steps: [""],
   repeat: Infinity,
   force: false,
+  pause: false,
 };
 
 type TypeOutProps = Optional<DefaultTypeOutProps>;
@@ -57,11 +62,14 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
     // handle null, undefined, etc.
     if (!node) return node;
     if (typeof node === "string")
-      return node.split(" ").map(word => (
-        <span className={styles.word} key={crypto.randomUUID()}>
-          {word}&nbsp;
-        </span>
-      ));
+      return node
+        .trim()
+        .split(" ")
+        .map(word => (
+          <span className={styles.word} key={crypto.randomUUID()}>
+            {word}&nbsp;
+          </span>
+        ));
     // @ts-expect-error - TS doesn't know that node is an object with children
     if (typeof node === "object" && node.props.children) {
       const {
@@ -175,6 +183,7 @@ const TypingAnimation = ({
   speed,
   steps,
   style,
+  pause,
   ...props
 }: DefaultTypeOutProps) => {
   const [processing, setProcessing] = useState(true);
@@ -247,6 +256,10 @@ const TypingAnimation = ({
   }, [animatedSteps, delSpeed, repeat, speed]);
 
   useEffect(() => {
+    if (pause) {
+      containerRef.current?.classList.add(styles.pause);
+      return () => null;
+    }
     const handleVisibilityChange = () => {
       containerRef.current?.classList[document.visibilityState === "visible" ? "remove" : "add"](
         styles.pause,
@@ -255,7 +268,7 @@ const TypingAnimation = ({
     handleVisibilityChange();
     addEventListener("visibilitychange", handleVisibilityChange);
     return () => removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
+  }, [pause]);
 
   return (
     <div

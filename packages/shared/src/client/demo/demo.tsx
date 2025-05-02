@@ -9,9 +9,11 @@ export function Demo() {
     <div className={styles.demo}>
       <TypeOut
         steps={[
-          <p>Hare Krishna Hare Krishna Hare Krishna</p>,
-          <p>Hare Krishna Hare Krishna Krishna Krishna Hare Hare</p>,
-          <p>Hare Krishna, Hare Rama</p>,
+          <p key={1}>
+            Hare <span style={{ color: "green" }}>Krishna</span> Hare Krishna Hare Krishna
+          </p>,
+          <p key={2}>Hare Krishna Hare Krishna Krishna Krishna Hare Hare</p>,
+          <p key={3}>Hare Krishna Hare Krishna Hare Rama Hare Rama</p>,
         ]}></TypeOut>
     </div>
   );
