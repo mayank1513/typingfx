@@ -2,7 +2,7 @@
   "name": "typingfx",
   "author": "Mayank Kumar Chaudhari (https://mayank-chaudhari.vercel.app)",
   "private": false,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Customizable, smooth, and snappy typing animations for React — built for natural, human-like effects with minimal config.",
   "license": "MPL-2.0",
   "main": "./dist/index.js",
@@ -37,7 +37,6 @@
     "esbuild-plugin-rdi": "^0.0.0",
     "esbuild-plugin-react18": "0.2.6",
     "esbuild-plugin-react18-css": "^0.0.4",
-    "jsdom": "^26.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tsup": "^8.4.0",
@@ -46,6 +45,7 @@
     "vitest": "^3.1.1"
   },
   "dependencies": {
+    "happy-dom": "^17.4.6",
     "r18gs": "^3.0.1"
   },
   "peerDependencies": {
