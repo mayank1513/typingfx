@@ -8,7 +8,6 @@ import styles from "./type-out.module.scss";
 export const setupTypingFX = (children: ReactNode): ReactNode => {
   const handleNode = (node: ReactNode): ReactNode => {
     if (Array.isArray(node)) return node.map(handleNode);
-    if (!node) return node;
 
     if (typeof node === "string") {
       return node
@@ -22,7 +21,7 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
     }
 
     // @ts-expect-error - TS doesn't know that node is an object with children
-    if (typeof node === "object" && node.props?.children) {
+    if (typeof node === "object" && node?.props?.children) {
       const {
         type: Tag,
         props: { children, className, ...props },
@@ -49,7 +48,6 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
       );
     }
 
-    /* v8 ignore next */
     return node;
   };
   return handleNode(children);
@@ -107,10 +105,12 @@ export const addAnimationListeners = (elements: HTMLElement[][], repeat: number)
   // Return early if all steps are exactly same
   if (iCheck === elements.length) return;
 
+  console.log({ stepStartIndices });
+
   let repeatCount = 0;
 
   for (let i = 0; i < elements.length; i++) {
-    for (let j = 1; j < elements[i].length; j++) {
+    for (let j = 0; j < elements[i].length; j++) {
       const el = elements[i][j];
       const nextEl = elements[i][j + 1];
       const prevEl = elements[i][j - 1];
@@ -125,13 +125,18 @@ export const addAnimationListeners = (elements: HTMLElement[][], repeat: number)
           else el.classList.add(styles.cursor);
         } else {
           updateAfterDelAnim(el);
-          if (j === stepStartIndices[i]) {
+          if (
+            (j === elements[i].length - 1 && elements[i].length === stepStartIndices[i]) ||
+            j === stepStartIndices[i]
+          ) {
+            console.log("----------hk---------", { j });
             let i2 = (i + 1) % elements.length;
             while (elements[i2].length === stepStartIndices[i2]) i2 = (i2 + 1) % elements.length;
+            if (i2 === i) i2 = (elements.length + i2 - 1) % elements.length;
             const nextStepEls = elements[i2];
             for (let k = 0; k < j; k++) updateAfterTypeAnim(nextStepEls[k]);
             for (let k = 0; k < j; k++) updateAfterDelAnim(elements[i][k]);
-            nextStepEls[j].classList.add(styles.type);
+            nextStepEls[nextStepEls[j] ? j : j - 1].classList.add(styles.type);
           } else if (prevEl) prevEl.classList.add(styles.del);
         }
       };

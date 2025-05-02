@@ -61,7 +61,6 @@ const TypingAnimation = ({
   const animatedSteps = useMemo(() => {
     const newSteps = children ? [...steps, children] : steps;
     if (newSteps.length < 2) newSteps.unshift("", "");
-    console.log({ newSteps });
     return newSteps.map(setupTypingFX);
   }, [children, steps]);
 
@@ -69,7 +68,6 @@ const TypingAnimation = ({
 
   // Trigger animations on mount or changes
   useEffect(() => {
-    console.log({ animatedSteps });
     if (!containerRef.current) return;
     setProcessing(true);
 
