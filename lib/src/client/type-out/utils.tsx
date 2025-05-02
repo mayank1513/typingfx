@@ -133,8 +133,6 @@ export const addAnimationListeners = (
   // Return early if all steps are exactly same
   if (iCheck === elements.length) return;
 
-  console.log({ stepStartIndices });
-
   let repeatCount = 0;
 
   for (let i = 0; i < elements.length; i++) {
@@ -157,7 +155,6 @@ export const addAnimationListeners = (
             (j === elements[i].length - 1 && elements[i].length === stepStartIndices[i]) ||
             j === stepStartIndices[i]
           ) {
-            console.log("----------hk---------", { j });
             let i2 = (i + 1) % elements.length;
             while (elements[i2].length === stepStartIndices[i2]) i2 = (i2 + 1) % elements.length;
             if (i2 === i) i2 = (elements.length + i2 - 1) % elements.length;

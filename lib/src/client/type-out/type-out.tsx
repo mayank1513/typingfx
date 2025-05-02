@@ -66,7 +66,6 @@ const TypingAnimation = ({
 
   const animatedSteps = useMemo(() => {
     const newSteps = children ? [...steps, children] : steps;
-    console.log({ children, steps, newSteps });
     if (newSteps.length < 2) newSteps.unshift("", "");
     return newSteps.map(setupTypingFX);
   }, [children, steps]);
@@ -97,8 +96,6 @@ const TypingAnimation = ({
               el.classList.add(styles.del));
         };
       }
-
-      console.log({ elements });
 
       requestAnimationFrame(() => elements[0][0].classList.add(styles.type));
       setProcessing(false);
