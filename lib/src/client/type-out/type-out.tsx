@@ -7,12 +7,12 @@ export interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
 
   /**
    * Typing speed in characters per second
-   * @default 30
+   * @default 20
    */
   speed: number;
   /**
    * Deleting speed in characters per second
-   * @default 60
+   * @default 40
    */
 
   delSpeed: number;
@@ -45,8 +45,8 @@ export interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
 
 const defaultTypeOutProps: DefaultTypeOutProps = {
   children: "",
-  speed: 10,
-  delSpeed: 20,
+  speed: 20,
+  delSpeed: 40,
   noCursor: false,
   steps: [""],
   repeat: Infinity,
@@ -92,8 +92,9 @@ const setupTypingFX = (children: ReactNode): ReactNode => {
           key={crypto.randomUUID()}
           className={[styles.word, styles.wait].join(" ")}
           // @ts-expect-error -- custom css prop
-          style={{ "--d": `${duration}ms`, "--r": `${reverseDuration}ms` }}
-        />
+          style={{ "--d": `${duration}ms`, "--r": `${reverseDuration}ms` }}>
+          &nbsp;
+        </span>
       );
     }
     return node;
@@ -174,6 +175,7 @@ const addAnimationListeners = (elements: HTMLElement[][], repeat: number) => {
           if (nextEl) nextEl.classList.add(styles.type);
           else if (i1 !== elements.length - 1 || repeatCount++ < repeat)
             el.classList.add(styles.del);
+          else el.classList.add(styles.cursor);
         } else {
           updateAfterDelAnim(el);
           if (j1 === stepStartIndices[i1]) {

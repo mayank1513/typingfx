@@ -13,6 +13,7 @@
   display: inline-block;
   overflow: hidden;
   width: 0;
+  position: relative;
 }
 
 .hk,
@@ -35,27 +36,33 @@
   animation: del steps(8) calc(var(--n) * 1s / var(--delSpeed));
 }
 
-.del.d0,
-.type.t0 {
-  animation-duration: 0s;
+.wait {
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .wait.type {
   animation-duration: var(--d);
+  width: auto !important;
+  height: auto !important;
 }
 .wait.del {
   animation-duration: var(--r);
+  width: auto !important;
+  height: auto !important;
 }
 
+.cursor .cursor::after,
 .cursor .type::after,
 .cursor .del::after {
   content: " ";
   position: absolute;
-  right: 1px;
-  width: 1px;
-  height: 100%;
+  top: 13%;
+  height: 72%;
+  right: 0px;
+  width: 2px;
   background: currentColor;
-  animation: blink 1s infinite;
+  animation: blink 0.75s infinite;
 }
 
 .paused * {
