@@ -4,6 +4,7 @@ import { TypeOut } from "typingfx";
 import styles from "./demo.module.scss";
 import { HTMLProps, useEffect, useMemo, useState } from "react";
 
+/** Component to test rendering of custom component in typingfx */
 const TestComponent = ({ children }: HTMLProps<HTMLElement>) => (
   <p>
     I am a <span className={styles.test}>Test Component</span>
@@ -43,8 +44,9 @@ export function Demo() {
   return (
     <div className={styles.demo}>
       <button onClick={() => setPaused(!paused)}>{paused ? "Resume" : "Pause"}</button>
-      <TypeOut paused={paused}>{welcome}</TypeOut>
-      <div>{welcome}</div>
+      <TypeOut paused={paused} steps={steps}>
+        {welcome}
+      </TypeOut>
     </div>
   );
 }
