@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { isValidElement, ReactNode } from "react";
 import styles from "./type-out.module.scss";
 
 /**
@@ -21,21 +21,6 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
         ));
     }
 
-    // @ts-expect-error - TS doesn't know that node is an object with children
-    if (typeof node === "object" && node?.props?.children) {
-      const {
-        type: Tag,
-        props: { children, className, ...props },
-        // skipcq: JS-0323
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } = node as any;
-      return (
-        <Tag key={crypto.randomUUID()} className={[styles.hk, className].join(" ")} {...props}>
-          {handleNode(children)}
-        </Tag>
-      );
-    }
-
     if (typeof node === "number") {
       const [duration, reverseDuration] = node > 0 ? [node, 0] : [0, -node];
       return (
@@ -46,6 +31,22 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
           style={{ "--d": `${duration}ms`, "--r": `${reverseDuration}ms` }}>
           &nbsp;
         </span>
+      );
+    }
+
+    if (isValidElement(node)) {
+      const { type: Tag, props } = node;
+      const classNameObj =
+        // @ts-expect-error props is unknown
+        typeof Tag === "string" ? { className: [styles.hk, props.className].join(" ") } : {};
+      // @ts-expect-error Tag has no call signature
+      if (Tag instanceof Function) return handleNode(Tag(props));
+      return (
+        // @ts-expect-error props is unknown
+        <Tag key={crypto.randomUUID()} {...props} {...classNameObj}>
+          {/* @ts-expect-error props is unknown */}
+          {handleNode(props.children)}
+        </Tag>
       );
     }
 
