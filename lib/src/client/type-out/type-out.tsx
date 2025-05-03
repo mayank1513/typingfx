@@ -110,7 +110,7 @@ const TypingAnimation = ({
       requestAnimationFrame(() => elements[0][0].classList.add(styles.type));
       setProcessing(false);
     });
-    return () => elements.flat().forEach(el => (el.onanimationend = null));
+    return () => elements?.flat().forEach(el => (el.onanimationend = null));
   }, [animatedSteps, repeat, noCursorAfterAnimEnd]);
 
   // Respect pause and pause on visibility hidden
