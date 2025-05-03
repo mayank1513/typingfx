@@ -35,7 +35,7 @@ export function Demo() {
       <>
         {1000}Welcome <i>{`${user?.name},`}</i> {500}How can I help you?{-3000}
         <TestComponent />
-        {5000}
+        {5000}Sounds good!
       </>
     ),
     [user],

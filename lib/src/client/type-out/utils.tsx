@@ -1,11 +1,15 @@
 import { isValidElement, ReactNode } from "react";
 import styles from "./type-out.module.scss";
+import { ComponentAnimation } from "./type-out";
 
 /**
  * Wraps text nodes in <span> with classes and handles nested JSX structure.
  * Supports waiting durations as numeric values.
  */
-export const setupTypingFX = (children: ReactNode): ReactNode => {
+export const setupTypingFX = (
+  steps: ReactNode[],
+  componentAnimation: ComponentAnimation,
+): ReactNode[] => {
   /** recursively setup the node */
   const handleNode = (node: ReactNode): ReactNode => {
     if (Array.isArray(node)) return node.map(handleNode);
@@ -39,8 +43,20 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
       const classNameObj =
         // @ts-expect-error props is unknown
         typeof Tag === "string" ? { className: [styles.hk, props.className].join(" ") } : {};
-      // @ts-expect-error Tag has no call signature
-      if (Tag instanceof Function) return handleNode(Tag(props));
+      if (Tag instanceof Function)
+        return componentAnimation === "typing" ? (
+          // @ts-expect-error Tag has no call signature
+          handleNode(Tag(props))
+        ) : (
+          // @ts-expect-error complex types
+          <componentAnimation.wrapper
+            {...componentAnimation.props}
+            className={[styles.component, styles.hk, componentAnimation.props?.className].join(
+              " ",
+            )}>
+            {node}
+          </componentAnimation.wrapper>
+        );
       return (
         // @ts-expect-error props is unknown
         <Tag key={crypto.randomUUID()} {...props} {...classNameObj}>
@@ -52,7 +68,7 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
 
     return node;
   };
-  return handleNode(children);
+  return steps.map(handleNode);
 };
 
 /**
@@ -61,6 +77,7 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
 const enqueue = (node: Element, els: Element[]) => {
   els.push(node);
   const el = node as HTMLElement;
+  if (node.classList.contains(styles.component)) return;
   if (el.classList.contains(styles.hk)) el.style.setProperty("--n", "0");
   else if (el.classList.contains(styles.word)) {
     el.style.setProperty("--n", `${el.textContent?.length ?? 0}`);

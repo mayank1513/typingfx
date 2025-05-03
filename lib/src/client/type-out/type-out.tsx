@@ -3,6 +3,10 @@ import styles from "./type-out.module.scss";
 import { Optional } from "@m2d/core/utils";
 import { addAnimationListeners, listElements, setupTypingFX } from "./utils";
 
+export type ComponentAnimation =
+  | "typing"
+  | { wrapper: keyof HTMLElementTagNameMap; props?: Omit<HTMLProps<HTMLElement>, "children"> };
+
 /**
  * Props for the TypeOut component.
  * Provides fine-grained control over typing behavior, repetition, and accessibility.
@@ -33,6 +37,9 @@ interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
 
   /** Controls whether the animation is paused. */
   paused: boolean;
+
+  /** Preference for animating custom components in steps or children */
+  componentAnimation: ComponentAnimation;
 }
 
 const defaultTypeOutProps: DefaultTypeOutProps = {
@@ -45,6 +52,7 @@ const defaultTypeOutProps: DefaultTypeOutProps = {
   repeat: Infinity,
   force: false,
   paused: false,
+  componentAnimation: "typing",
 };
 
 export type TypeOutProps = Optional<DefaultTypeOutProps>;
@@ -52,6 +60,7 @@ export type TypeOutProps = Optional<DefaultTypeOutProps>;
 const TypingAnimation = ({
   children,
   className,
+  componentAnimation,
   delSpeed,
   noCursor,
   noCursorAfterAnimEnd,
@@ -67,8 +76,8 @@ const TypingAnimation = ({
   const animatedSteps = useMemo(() => {
     const newSteps = children ? [...steps, children] : steps;
     if (newSteps.length < 2) newSteps.unshift("", "");
-    return newSteps.map(setupTypingFX);
-  }, [children, steps]);
+    return setupTypingFX(newSteps, componentAnimation);
+  }, [children, steps, componentAnimation]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 

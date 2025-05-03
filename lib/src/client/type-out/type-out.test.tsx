@@ -1,11 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { TypeOut } from "./type-out"; // import the component
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, it } from "vitest";
 import styles from "./type-out.module.scss";
 import {
   addAnimationListeners,
   listElements,
-  setupTypingFX,
   updateAfterDelAnim,
   updateAfterTypeAnim,
 } from "./utils";
@@ -57,9 +56,6 @@ describe.concurrent("Utils", () => {
     const { container } = render(<TypeOut steps={["Hello World", "I am using TypingFX"]} force />);
     typeOutEl = container.getElementsByClassName(styles.typeout)[0] as HTMLElement;
     list = listElements(typeOutEl);
-  });
-  it("setupTypingFX", ({ expect }) => {
-    expect(setupTypingFX(null)).toBe(null);
   });
 
   it("listElements", ({ expect }) => {
