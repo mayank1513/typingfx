@@ -1,5 +1,17 @@
 # typingfx
 
+## 1.1.0
+
+### Minor Changes
+
+- 636a8d8: Shorten classNames
+- d0bf593: Support applygin typing animations to JSX including custom React Components (Limited to only Pure components).
+
+### Patch Changes
+
+- 3293066: Add exports
+- e3d4a7e: Cutomize components animations
+
 ## 1.0.0
 
 ### Major Changes

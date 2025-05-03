@@ -44,6 +44,7 @@ interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
 
 const defaultTypeOutProps: DefaultTypeOutProps = {
   children: "",
+  componentAnimation: "typing",
   speed: 20,
   delSpeed: 40,
   noCursor: false,
@@ -52,7 +53,6 @@ const defaultTypeOutProps: DefaultTypeOutProps = {
   repeat: Infinity,
   force: false,
   paused: false,
-  componentAnimation: "typing",
 };
 
 export type TypeOutProps = Optional<DefaultTypeOutProps>;

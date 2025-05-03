@@ -1,5 +1,0 @@
----
-"typingfx": minor
----
-
-Shorten classNames
