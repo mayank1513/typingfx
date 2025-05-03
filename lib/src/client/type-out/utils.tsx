@@ -18,8 +18,9 @@ export const setupTypingFX = (
       return node
         .trim()
         .split(" ")
-        .map(word => (
-          <span className={styles.word} key={crypto.randomUUID()}>
+        .map((word, i) => (
+          // skipcq: JS-0437
+          <span className={styles.word} key={word + i}>
             {word}&nbsp;
           </span>
         ));
