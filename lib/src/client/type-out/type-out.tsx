@@ -3,9 +3,10 @@ import styles from "./type-out.module.scss";
 import { Optional } from "@m2d/core/utils";
 import { addAnimationListeners, listElements, setupTypingFX } from "./utils";
 
-export type ComponentAnimation =
-  | "typing"
-  | { wrapper: keyof HTMLElementTagNameMap; props?: Omit<HTMLProps<HTMLElement>, "children"> };
+export type ComponentAnimation = {
+  wrapper: keyof HTMLElementTagNameMap;
+  props?: Omit<HTMLProps<HTMLElement>, "children">;
+};
 
 /**
  * Props for the TypeOut component.
@@ -39,12 +40,11 @@ interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
   paused: boolean;
 
   /** @beta Preference for animating custom components in steps or children */
-  componentAnimation: ComponentAnimation;
+  componentAnimation?: ComponentAnimation;
 }
 
 const defaultTypeOutProps: DefaultTypeOutProps = {
   children: "",
-  componentAnimation: "typing",
   speed: 20,
   delSpeed: 40,
   noCursor: false,

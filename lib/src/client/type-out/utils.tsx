@@ -8,7 +8,7 @@ import { ComponentAnimation } from "./type-out";
  */
 export const setupTypingFX = (
   steps: ReactNode[],
-  componentAnimation: ComponentAnimation,
+  componentAnimation?: ComponentAnimation,
 ): ReactNode[] => {
   /** recursively setup the node */
   const handleNode = (node: ReactNode): ReactNode => {
@@ -45,10 +45,7 @@ export const setupTypingFX = (
         // @ts-expect-error props is unknown
         typeof Tag === "string" ? { className: [styles.hk, props.className].join(" ") } : {};
       if (Tag instanceof Function)
-        return componentAnimation === "typing" ? (
-          // @ts-expect-error Tag has no call signature
-          handleNode(Tag(props))
-        ) : (
+        return componentAnimation ? (
           // @ts-expect-error complex types
           <componentAnimation.wrapper
             {...componentAnimation.props}
@@ -57,6 +54,9 @@ export const setupTypingFX = (
             )}>
             {node}
           </componentAnimation.wrapper>
+        ) : (
+          // @ts-expect-error Tag has no call signature
+          handleNode(Tag(props))
         );
       return (
         // @ts-expect-error props is unknown
