@@ -9,6 +9,8 @@ import {
   updateAfterTypeAnim,
 } from "./utils";
 
+const CustomComponent = () => <>Hi! I am from custom component</>;
+
 describe("TypeOut Component", () => {
   // Test for Reduced Motion Preference
   it("should render last step without animation if prefers-reduced-motion is set to reduce", ({
@@ -21,7 +23,18 @@ describe("TypeOut Component", () => {
   // Test for Force Prop: Ensures animation is shown even with reduced motion preference
   it("should override reduced-motion and show animation when force is true", async ({ expect }) => {
     const { container } = render(
-      <TypeOut steps={["Hello World", "I am using TypingFX"]} paused force />,
+      <TypeOut
+        steps={[
+          "Hello World",
+          "I am using TypingFX",
+          <>
+            <CustomComponent />
+          </>,
+        ]}
+        paused
+        force
+        componentAnimation={{ wrapper: "div" }}
+      />,
     );
 
     await screen.findByText("TypingFX");
