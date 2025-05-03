@@ -120,6 +120,75 @@ export default function Example() {
 />
 ```
 
+Thanks for the clarification — that makes the distinction much clearer. Here’s the revised **Component Animation (Beta)** section for your README, integrating all key details:
+
+## ✨ Component Animation (Beta)
+
+TypingFX now supports component-level animation in **beta**.
+
+### 🔧 Default Behavior: Typing Through Pure Components
+
+By default, TypingFX attempts to "type" the component content **as if it were inline JSX**. This works best when your component is **pure** (no side effects or internal state), allowing TypingFX to extract and animate the raw JSX output.
+
+```tsx
+<Component /> → JSX → animated like regular content
+```
+
+This enables smooth, character-by-character typing that matches the surrounding text.
+
+### 🛠 Custom Animation with `componentAnimation`
+
+For non-pure components (e.g., those with side effects or dynamic behavior), you can opt out of JSX extraction by providing a `componentAnimation` prop:
+
+```ts
+componentAnimation?: {
+  wrapper: React.ElementType;
+  props?: Record<string, any>;
+};
+```
+
+In this mode, we skip the JSX extraction and **wrap the component directly** inside a fading animation container:
+
+- Fade-in (`fadein`, 5s) for typing
+- Fade-out (`fadeout`, 3s) for deletion
+
+```scss
+.component {
+  position: relative;
+  text-wrap: nowrap;
+  overflow: hidden;
+
+  &.type {
+    height: auto !important;
+    animation: fadein 5s;
+  }
+
+  &.del {
+    animation: fadeout 3s;
+  }
+}
+```
+
+This approach is safer for components with internal logic, effects, or asynchronous rendering.
+
+### 🎨 CSS Overrides
+
+To fully customize the animations, override these CSS classes:
+
+```css
+.tfx_component.tfx_type {
+  animation: myCustomFadeIn 2s ease-in;
+}
+
+.tfx_component.tfx_del {
+  animation: myCustomFadeOut 2s ease-out;
+}
+```
+
+### 💬 API Feedback Welcome
+
+We're exploring the best API design for component animation. If you have ideas or requirements, please open an [issue or discussion](https://github.com/react18-tools/typingfx/issues).
+
 ---
 
 ## 💡 Tips & Tricks

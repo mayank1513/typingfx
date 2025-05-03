@@ -3,6 +3,11 @@ import styles from "./type-out.module.scss";
 import { Optional } from "@m2d/core/utils";
 import { addAnimationListeners, listElements, setupTypingFX } from "./utils";
 
+export type ComponentAnimation = {
+  wrapper: keyof HTMLElementTagNameMap;
+  props?: Omit<HTMLProps<HTMLElement>, "children">;
+};
+
 /**
  * Props for the TypeOut component.
  * Provides fine-grained control over typing behavior, repetition, and accessibility.
@@ -20,7 +25,7 @@ interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
   noCursor: boolean;
 
   /** Whether to hide the blinking cursor after completing the anim. @default false */
-  noCursorAfterAnimEnd: false;
+  noCursorAfterAnimEnd: boolean;
 
   /** Sequence of steps (lines or phrases) to animate through. */
   steps: ReactNode[];
@@ -33,6 +38,9 @@ interface DefaultTypeOutProps extends HTMLProps<HTMLDivElement> {
 
   /** Controls whether the animation is paused. */
   paused: boolean;
+
+  /** @beta Preference for animating custom components in steps or children */
+  componentAnimation?: ComponentAnimation;
 }
 
 const defaultTypeOutProps: DefaultTypeOutProps = {
@@ -52,6 +60,7 @@ export type TypeOutProps = Optional<DefaultTypeOutProps>;
 const TypingAnimation = ({
   children,
   className,
+  componentAnimation,
   delSpeed,
   noCursor,
   noCursorAfterAnimEnd,
@@ -67,8 +76,8 @@ const TypingAnimation = ({
   const animatedSteps = useMemo(() => {
     const newSteps = children ? [...steps, children] : steps;
     if (newSteps.length < 2) newSteps.unshift("", "");
-    return newSteps.map(setupTypingFX);
-  }, [children, steps]);
+    return setupTypingFX(newSteps, componentAnimation);
+  }, [children, steps, componentAnimation]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -76,9 +85,10 @@ const TypingAnimation = ({
   useEffect(() => {
     setProcessing(true);
 
+    let elements: HTMLElement[][];
     requestAnimationFrame(() => {
       if (!containerRef.current) return;
-      const elements = listElements(containerRef.current);
+      elements = listElements(containerRef.current);
 
       for (let i = 0; i < elements[0].length; i++) {
         const el = elements[0][i] as HTMLElement;
@@ -100,6 +110,7 @@ const TypingAnimation = ({
       requestAnimationFrame(() => elements[0][0].classList.add(styles.type));
       setProcessing(false);
     });
+    return () => elements?.flat().forEach(el => (el.onanimationend = null));
   }, [animatedSteps, repeat, noCursorAfterAnimEnd]);
 
   // Respect pause and pause on visibility hidden

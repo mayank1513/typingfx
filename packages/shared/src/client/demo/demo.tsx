@@ -2,7 +2,15 @@
 
 import { TypeOut } from "typingfx";
 import styles from "./demo.module.scss";
-import { useEffect, useMemo, useState } from "react";
+import { HTMLProps, useEffect, useMemo, useState } from "react";
+
+/** Component to test rendering of custom component in typingfx */
+const TestComponent = ({ children }: HTMLProps<HTMLElement>) => (
+  <p>
+    I am a <span className={styles.test}>Test Component</span>
+    {children}
+  </p>
+);
 
 const steps = [
   <div key={0}>Hare</div>,
@@ -21,12 +29,14 @@ export function Demo() {
   useEffect(() => {
     setTimeout(() => {
       setUser({ name: "Mayank" });
-    }, 3000);
+    }, 900);
   }, []);
   const welcome = useMemo(
     () => (
       <>
         {1000}Welcome <i>{`${user?.name},`}</i> {500}How can I help you?{-3000}
+        <TestComponent />
+        {5000}Sounds good!
       </>
     ),
     [user],

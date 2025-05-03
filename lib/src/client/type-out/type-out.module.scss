@@ -10,7 +10,7 @@
   --w: 0px;
   /** number of chars */
   --n: 0;
-  display: inline-block;
+  display: inline-flex;
   overflow: hidden;
   width: 0;
   position: relative;
@@ -22,7 +22,7 @@
   height: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
-  opacity: 0 !important;
+  opacity: 0;
   * {
     width: auto !important;
   }
@@ -72,6 +72,19 @@
   animation-play-state: paused !important;
 }
 
+.component {
+  position: relative;
+  text-wrap: nowrap;
+  overflow: hidden;
+  &.type {
+    height: auto !important;
+    animation: fadein 5s;
+  }
+  &.del {
+    animation: fadeout 3s;
+  }
+}
+
 @keyframes blink {
   50% {
     opacity: 0;
@@ -97,5 +110,20 @@
   to {
     width: 0;
     height: auto;
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeout {
+  to {
+    opacity: 0;
   }
 }

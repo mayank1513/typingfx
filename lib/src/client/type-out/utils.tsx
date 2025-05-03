@@ -1,11 +1,15 @@
-import { ReactNode } from "react";
+import { isValidElement, ReactNode } from "react";
 import styles from "./type-out.module.scss";
+import { ComponentAnimation } from "./type-out";
 
 /**
  * Wraps text nodes in <span> with classes and handles nested JSX structure.
  * Supports waiting durations as numeric values.
  */
-export const setupTypingFX = (children: ReactNode): ReactNode => {
+export const setupTypingFX = (
+  steps: ReactNode[],
+  componentAnimation?: ComponentAnimation,
+): ReactNode[] => {
   /** recursively setup the node */
   const handleNode = (node: ReactNode): ReactNode => {
     if (Array.isArray(node)) return node.map(handleNode);
@@ -14,26 +18,12 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
       return node
         .trim()
         .split(" ")
-        .map(word => (
-          <span className={styles.word} key={crypto.randomUUID()}>
+        .map((word, i) => (
+          // skipcq: JS-0437
+          <span className={styles.word} key={word + i}>
             {word}&nbsp;
           </span>
         ));
-    }
-
-    // @ts-expect-error - TS doesn't know that node is an object with children
-    if (typeof node === "object" && node?.props?.children) {
-      const {
-        type: Tag,
-        props: { children, className, ...props },
-        // skipcq: JS-0323
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } = node as any;
-      return (
-        <Tag key={crypto.randomUUID()} className={[styles.hk, className].join(" ")} {...props}>
-          {handleNode(children)}
-        </Tag>
-      );
     }
 
     if (typeof node === "number") {
@@ -49,9 +39,37 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
       );
     }
 
+    if (isValidElement(node)) {
+      const { type: Tag, props } = node;
+      const classNameObj =
+        // @ts-expect-error props is unknown
+        typeof Tag === "string" ? { className: [styles.hk, props.className].join(" ") } : {};
+      if (Tag instanceof Function)
+        return componentAnimation ? (
+          // @ts-expect-error complex types
+          <componentAnimation.wrapper
+            {...componentAnimation.props}
+            className={[styles.component, styles.hk, componentAnimation.props?.className].join(
+              " ",
+            )}>
+            {node}
+          </componentAnimation.wrapper>
+        ) : (
+          // @ts-expect-error Tag has no call signature
+          handleNode(Tag(props))
+        );
+      return (
+        // @ts-expect-error props is unknown
+        <Tag key={crypto.randomUUID()} {...props} {...classNameObj}>
+          {/* @ts-expect-error props is unknown */}
+          {handleNode(props.children)}
+        </Tag>
+      );
+    }
+
     return node;
   };
-  return handleNode(children);
+  return steps.map(handleNode);
 };
 
 /**
@@ -60,6 +78,7 @@ export const setupTypingFX = (children: ReactNode): ReactNode => {
 const enqueue = (node: Element, els: Element[]) => {
   els.push(node);
   const el = node as HTMLElement;
+  if (node.classList.contains(styles.component)) return;
   if (el.classList.contains(styles.hk)) el.style.setProperty("--n", "0");
   else if (el.classList.contains(styles.word)) {
     el.style.setProperty("--n", `${el.textContent?.length ?? 0}`);

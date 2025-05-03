@@ -1,14 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { TypeOut } from "./type-out"; // import the component
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, it } from "vitest";
 import styles from "./type-out.module.scss";
 import {
   addAnimationListeners,
   listElements,
-  setupTypingFX,
   updateAfterDelAnim,
   updateAfterTypeAnim,
 } from "./utils";
+
+const CustomComponent = () => <>Hi! I am from custom component</>;
 
 describe("TypeOut Component", () => {
   // Test for Reduced Motion Preference
@@ -22,7 +23,18 @@ describe("TypeOut Component", () => {
   // Test for Force Prop: Ensures animation is shown even with reduced motion preference
   it("should override reduced-motion and show animation when force is true", async ({ expect }) => {
     const { container } = render(
-      <TypeOut steps={["Hello World", "I am using TypingFX"]} paused force />,
+      <TypeOut
+        steps={[
+          "Hello World",
+          "I am using TypingFX",
+          <>
+            <CustomComponent />
+          </>,
+        ]}
+        paused
+        force
+        componentAnimation={{ wrapper: "div" }}
+      />,
     );
 
     await screen.findByText("TypingFX");
@@ -34,7 +46,13 @@ describe("TypeOut Component", () => {
   it("should hide cursor when noCursor is true", ({ expect }) => {
     render(
       <TypeOut
-        steps={[<>Hello{500}</>, "How are you"]}
+        steps={[
+          <>
+            Hello{500}
+            <CustomComponent />
+          </>,
+          "How are you",
+        ]}
         noCursor
         speed={10}
         delSpeed={20}
@@ -57,9 +75,6 @@ describe.concurrent("Utils", () => {
     const { container } = render(<TypeOut steps={["Hello World", "I am using TypingFX"]} force />);
     typeOutEl = container.getElementsByClassName(styles.typeout)[0] as HTMLElement;
     list = listElements(typeOutEl);
-  });
-  it("setupTypingFX", ({ expect }) => {
-    expect(setupTypingFX(null)).toBe(null);
   });
 
   it("listElements", ({ expect }) => {
