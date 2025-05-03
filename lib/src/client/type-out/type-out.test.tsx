@@ -46,7 +46,13 @@ describe("TypeOut Component", () => {
   it("should hide cursor when noCursor is true", ({ expect }) => {
     render(
       <TypeOut
-        steps={[<>Hello{500}</>, "How are you"]}
+        steps={[
+          <>
+            Hello{500}
+            <CustomComponent />
+          </>,
+          "How are you",
+        ]}
         noCursor
         speed={10}
         delSpeed={20}
