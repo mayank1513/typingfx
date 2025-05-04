@@ -75,13 +75,20 @@
 .component {
   position: relative;
   text-wrap: nowrap;
-  overflow: hidden;
+  height: auto;
+  width: fit-content;
   &.type {
-    height: auto !important;
     animation: fadein 5s;
   }
   &.del {
     animation: fadeout 3s;
+  }
+  &.type,
+  &.del {
+    height: auto !important;
+    &::after {
+      all: unset;
+    }
   }
 }
 

@@ -44,7 +44,8 @@ export const setupTypingFX = (
       const classNameObj =
         // @ts-expect-error props is unknown
         typeof Tag === "string" ? { className: [styles.hk, props.className].join(" ") } : {};
-      if (Tag instanceof Function)
+      // @ts-expect-error props is unknown
+      if (Tag instanceof Function || (props["data-tfx"] && componentAnimation))
         return componentAnimation ? (
           // @ts-expect-error complex types
           <componentAnimation.wrapper
@@ -165,8 +166,10 @@ export const addAnimationListeners = (
         e.stopPropagation();
         if (el.classList.contains(styles.type)) {
           updateAfterTypeAnim(el);
-          if (nextEl) nextEl.classList.add(styles.type);
-          else if (i !== elements.length - 1 || repeatCount++ < repeat)
+          if (nextEl) {
+            updateAfterTypeAnim(nextEl);
+            nextEl.classList.add(styles.type);
+          } else if (i !== elements.length - 1 || repeatCount++ < repeat)
             el.classList.add(styles.del);
           else if (!noCursorAfterAnimEnd) el.classList.add(styles.cursor);
         } else {
@@ -181,7 +184,9 @@ export const addAnimationListeners = (
             const nextStepEls = elements[i2];
             for (let k = 0; k < j; k++) updateAfterTypeAnim(nextStepEls[k]);
             for (let k = 0; k < j; k++) updateAfterDelAnim(elements[i][k]);
-            nextStepEls[nextStepEls[j] ? j : j - 1].classList.add(styles.type);
+            const nextEl = nextStepEls[nextStepEls[j] ? j : j - 1];
+            updateAfterTypeAnim(nextEl);
+            nextEl.classList.add(styles.type);
           } else if (prevEl) prevEl.classList.add(styles.del);
         }
       };

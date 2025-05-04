@@ -44,7 +44,7 @@ export function Demo() {
   return (
     <div className={styles.demo}>
       <button onClick={() => setPaused(!paused)}>{paused ? "Resume" : "Pause"}</button>
-      <TypeOut paused={paused} steps={steps}>
+      <TypeOut paused={paused} steps={steps} componentAnimation={{ wrapper: "div" }}>
         {welcome}
       </TypeOut>
     </div>
