@@ -1,5 +1,12 @@
 # typingfx
 
+## 1.1.1
+
+### Patch Changes
+
+- 9953ec3: Support SSR components
+- 7e61896: fix: Apply key to elements in list
+
 ## 1.1.0
 
 ### Minor Changes
