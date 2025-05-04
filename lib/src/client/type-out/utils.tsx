@@ -49,6 +49,7 @@ export const setupTypingFX = (
         return componentAnimation ? (
           // @ts-expect-error complex types
           <componentAnimation.wrapper
+            key={crypto.randomUUID()}
             {...componentAnimation.props}
             className={[styles.component, styles.hk, componentAnimation.props?.className].join(
               " ",
