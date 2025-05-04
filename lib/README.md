@@ -120,60 +120,58 @@ export default function Example() {
 />
 ```
 
-Thanks for the clarification — that makes the distinction much clearer. Here’s the revised **Component Animation (Beta)** section for your README, integrating all key details:
+---
 
-## ✨ Component Animation (Beta)
+## 🧪 Component Animation (Beta)
 
-TypingFX now supports component-level animation in **beta**.
+TypingFX supports animating React components using a typing and deleting effect. This feature is currently in **beta**, and feedback is welcome.
 
-### 🔧 Default Behavior: Typing Through Pure Components
+### ✨ Default Behavior – Typing Animation
 
-By default, TypingFX attempts to "type" the component content **as if it were inline JSX**. This works best when your component is **pure** (no side effects or internal state), allowing TypingFX to extract and animate the raw JSX output.
+By default, TypingFX assumes the component is **pure** and attempts to extract and animate its **JSX output**, treating it like static content. This provides a natural typing effect as if the component was written inline.
 
 ```tsx
-<Component /> → JSX → animated like regular content
+<TypingFX>{<MyPureComponent />}</TypingFX>
 ```
 
 This enables smooth, character-by-character typing that matches the surrounding text.
 
-### 🛠 Custom Animation with `componentAnimation`
+### 🧩 `componentAnimation` Prop
 
-For non-pure components (e.g., those with side effects or dynamic behavior), you can opt out of JSX extraction by providing a `componentAnimation` prop:
+For components with side effects or dynamic behavior, you can control their animation using the `componentAnimation` prop:
 
-```ts
-componentAnimation?: {
-  wrapper: React.ElementType;
-  props?: Record<string, any>;
-};
+```tsx
+<TypingFX
+  componentAnimation={{
+    wrapper: "div",
+    props: { className: "custom-wrapper" },
+  }}>
+  <MyComponent />
+</TypingFX>
 ```
 
-In this mode, we skip the JSX extraction and **wrap the component directly** inside a fading animation container:
+TypingFX will wrap the component with the specified element and apply:
 
-- Fade-in (`fadein`, 5s) for typing
-- Fade-out (`fadeout`, 3s) for deletion
+- **Fade-in (typing)**: 5s
+- **Fade-out (deleting)**: 3s
 
-```scss
-.component {
-  position: relative;
-  text-wrap: nowrap;
-  overflow: hidden;
+This disables JSX extraction and uses a wrapper-based animation strategy.
 
-  &.type {
-    height: auto !important;
-    animation: fadein 5s;
-  }
+### ⚠️ Server-Side Rendering (SSR) Limitation
 
-  &.del {
-    animation: fadeout 3s;
-  }
-}
+TypingFX cannot detect components in **SSR environments**. Thus, by default, SSR-rendered components are treated as normal content and animated using the default typing animation.
+
+However, you can manually mark any DOM element to be treated as a component by adding a `data-tfx` attribute with any truthy value:
+
+```html
+<span data-tfx="true">Server-rendered content</span>
 ```
 
-This approach is safer for components with internal logic, effects, or asynchronous rendering.
+Combined with the `componentAnimation` prop, this enables custom animation support even for SSR-rendered output.
 
 ### 🎨 CSS Overrides
 
-To fully customize the animations, override these CSS classes:
+You can override the fade animation by targeting the default class names:
 
 ```css
 .tfx_component.tfx_type {
@@ -185,9 +183,11 @@ To fully customize the animations, override these CSS classes:
 }
 ```
 
+---
+
 ### 💬 API Feedback Welcome
 
-We're exploring the best API design for component animation. If you have ideas or requirements, please open an [issue or discussion](https://github.com/react18-tools/typingfx/issues).
+We're exploring the best API design for component animation. If you have ideas or requirements, please open an [issue](https://github.com/react18-tools/typingfx/issues) or comment on [this discussion](https://github.com/react18-tools/typingfx/discussions/4).
 
 ---
 
